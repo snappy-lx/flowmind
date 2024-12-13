@@ -347,15 +347,16 @@ def main():
     # Process data
     df = trainer.parse_tmx(args.tmx_path)
     print(df.head())  # Print the first few rows of the DataFrame to validate parsing
-    #dataset = trainer.prepare_dataset(df, max_length=args.max_length)
+
+    dataset = trainer.prepare_dataset(df, max_length=args.max_length)
     
-    ## Train model
-    #trainer.train(
-    #    dataset,
-    #    num_epochs=args.epochs,
-    #    batch_size=args.batch_size,
-    #    learning_rate=args.learning_rate
-    #)
+    # Train model
+    trainer.train(
+        dataset,
+        num_epochs=args.epochs,
+        batch_size=args.batch_size,
+        learning_rate=args.learning_rate
+    )
 
 
 if __name__ == "__main__":
