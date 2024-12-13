@@ -1,5 +1,5 @@
 import torch
-from transformers import MBartForConditionalGeneration, MBartTokenizer
+from transformers import MBartForConditionalGeneration, MBartTokenizer, MBart50Tokenizer
 from datasets import Dataset
 import xml.etree.ElementTree as ET
 import pandas as pd
@@ -29,9 +29,18 @@ class TranslationTrainer:
         self.source_lang = source_lang
         self.target_lang = target_lang
         
+        # Map model names to tokenizer classes
+        tokenizer_classes = {
+            "facebook/mbart-large-50": MBart50Tokenizer,
+            # Add other model-tokenizer mappings here if needed
+        }
+
+        # Determine the tokenizer class based on the model name
+        tokenizer_class = tokenizer_classes.get(model_name, MBartTokenizer)
+
         # Initialize tokenizer
         logger.info(f"Loading tokenizer: {model_name}")
-        self.tokenizer = MBartTokenizer.from_pretrained(model_name)
+        self.tokenizer = tokenizer_class.from_pretrained(model_name)
         self.tokenizer.src_lang = source_lang
         self.tokenizer.tgt_lang = target_lang
         
@@ -55,12 +64,11 @@ class TranslationTrainer:
         Returns:
             bool: True if text is valid, False otherwise
         """
-        if not isinstance(text, str):
-            logger.warning(f"Entry {idx}: Invalid type - {type(text)}")
+        if text is None or not text.strip():
             return False
-        
-        if not text.strip():
-            logger.warning(f"Entry {idx}: Empty string")
+
+        if not isinstance(text, str):
+            logger.warning(f"Entry {idx}: Invalid type - {type(text)}: {text}")
             return False
         
         # Add more validation rules as needed
@@ -87,7 +95,7 @@ class TranslationTrainer:
         total_count = 0
         
         # Process translation units with progress bar
-        for tu in tqdm(root.findall('.//tu'), desc="Processing TMX entries"):
+        for tu in root.findall('.//tu'):
             total_count += 1
             tuv_elements = tu.findall('.//tuv')
             
@@ -338,15 +346,16 @@ def main():
     
     # Process data
     df = trainer.parse_tmx(args.tmx_path)
-    dataset = trainer.prepare_dataset(df, max_length=args.max_length)
+    print(df.head())  # Print the first few rows of the DataFrame to validate parsing
+    #dataset = trainer.prepare_dataset(df, max_length=args.max_length)
     
-    # Train model
-    trainer.train(
-        dataset,
-        num_epochs=args.epochs,
-        batch_size=args.batch_size,
-        learning_rate=args.learning_rate
-    )
+    ## Train model
+    #trainer.train(
+    #    dataset,
+    #    num_epochs=args.epochs,
+    #    batch_size=args.batch_size,
+    #    learning_rate=args.learning_rate
+    #)
 
 
 if __name__ == "__main__":
