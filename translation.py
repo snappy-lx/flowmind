@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 
 class TranslationTrainer:
-    def __init__(self, model_name="facebook/mbart-large-50", source_lang="en_XX", target_lang="zh_CN"):
+    def __init__(self, model_name="facebook/mbart-large-cc25", source_lang="en_XX", target_lang="zh_CN"):
         """
         Initialize the translation trainer with specified model and languages
         
@@ -32,6 +32,7 @@ class TranslationTrainer:
         # Map model names to tokenizer classes
         tokenizer_classes = {
             "facebook/mbart-large-50": MBart50Tokenizer,
+            "facebook/mbart-large-cc25": MBartTokenizer,
             # Add other model-tokenizer mappings here if needed
         }
 
@@ -328,7 +329,7 @@ def main():
                       help='Learning rate')
     parser.add_argument('--max_length', type=int, default=256,
                       help='Maximum sequence length')
-    parser.add_argument('--model_name', type=str, default="facebook/mbart-large-50",
+    parser.add_argument('--model_name', type=str, default="facebook/mbart-large-cc25",
                       help='Pretrained model name')
     parser.add_argument('--source_lang', type=str, default="en_XX",
                       help='Source language code')
